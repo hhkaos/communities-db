@@ -1,0 +1,40 @@
+name: Crear PR para nueva comunidad
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  create-pr:
+    if: contains(github.event.issue.labels.*.name, 'nueva-comunidad')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install axios
+
+      - name: Run script to update communities.json
+        env:
+          ISSUE_BODY: "${{ github.event.issue.body }}"
+        run: node scripts/process-community-issue.js
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "Add new community from issue"
+          branch: "add-community-${{ github.event.issue.number }}"
+          title: "Añadir comunidad propuesta en #${{ github.event.issue.number }}"
+          body: |
+            Esta PR añade una nueva comunidad al archivo `communities.json` basada en el issue #${{ github.event.issue.number }}.
