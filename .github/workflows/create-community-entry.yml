@@ -25,12 +25,14 @@ jobs:
       - name: Instalar dependencias
         run: npm install node-fetch sharp
 
-      - name: Obtener datos del issue
-        run: |
-          echo "${{ github.event.issue.body }}" > issue-body.txt
-      
       - name: Generar entrada de comunidad y actualizar JSON
-        run: node scripts/process-community-issue.js "$(cat issue-body.txt)"
+        run: node scripts/process-community-issue.js "${{ github.event.issue.body }}"
+      
+      - name: Limpiar archivos temporales
+        run: |
+          rm -f issue-body.txt
+          git reset node_modules/ || true
+          echo "🧹 Archivos temporales limpiados"
 
       - name: Crear Pull Request
         uses: peter-evans/create-pull-request@v5
