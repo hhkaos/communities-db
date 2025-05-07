@@ -41,7 +41,7 @@ async function main() {
   // Coordenadas desde Nominatim
   const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`, {
     headers: {
-      'User-Agent': 'ComunidadBot/1.0 (contacto@tucorreo.com)'
+      'User-Agent': 'ComunidadBot/1.0 (communitybuilders.es@gmail.com)'
     }
   });
   const geoData = await geoRes.json();
