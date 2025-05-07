@@ -9435,5 +9435,22 @@
       "lat": 39.4702393,
       "lon": -0.3768049
     }
+  },
+  {
+    "id": "563",
+    "name": "Comunidad de prueba",
+    "status": "Activa",
+    "lastReviewed": "7/5/2025",
+    "communityType": "Tech Meetup",
+    "eventFormat": "Presencial",
+    "location": "Málaga",
+    "topics": "_No response_",
+    "contactInfo": "_No response_",
+    "communityUrl": "https://github.com/hhkaos",
+    "thumbnailUrl": "https://pbs.twimg.com/profile_images/1907062614305234945/CLQqiG7s_400x400.jpg",
+    "latLon": {
+      "lat": 36.7213028,
+      "lon": -4.4216366
+    }
   }
 ]
