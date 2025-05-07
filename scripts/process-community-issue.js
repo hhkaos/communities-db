@@ -1,71 +1,71 @@
 const fs = require('fs');
-const axios = require('axios');
+const path = require('path');
+const fetch = require('node-fetch');
+const sharp = require('sharp');
 
-// Helper to parse field from issue body
-function extractField(body, label) {
-  const regex = new RegExp(`### ${label}\\n([^#]*)`, 'm');
-  const match = body.match(regex);
-  return match ? match[1].trim() : '';
-}
+const inputs = JSON.parse(process.argv[2]);
+const communitiesPath = './communities.json';
+const imagesFolder = './images';
 
-// Extract and process data
-(async () => {
-  const issueBody = process.env.ISSUE_BODY;
+// Utilidades
+const toWebpFileName = (name) => name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '') + '.webp';
 
-  const name = extractField(issueBody, 'Nombre de la comunidad');
-  const status = extractField(issueBody, 'Estado de la comunidad');
-  const communityType = extractField(issueBody, 'Tipo de comunidad');
-  const eventFormat = extractField(issueBody, 'Formato del evento');
-  const location = extractField(issueBody, 'Ciudad o región principal');
-  const topics = extractField(issueBody, 'Temas que trata');
-  const contactInfo = extractField(issueBody, 'Información de contacto');
-  const communityUrl = extractField(issueBody, 'URL principal de la comunidad');
-  const thumbnailUrl = extractField(issueBody, 'Imagen o logotipo de la comunidad');
+async function main() {
+  // Cargar comunidades existentes
+  const data = fs.readFileSync(communitiesPath, 'utf-8');
+  const communities = JSON.parse(data);
 
-  // Load existing communities
-  const path = 'communities.json';
-  const communities = JSON.parse(fs.readFileSync(path, 'utf8'));
+  // Calcular ID
+  const newId = communities.length + 1;
 
-  // Determine next ID
-  const nextId = Math.max(...communities.map(c => parseInt(c.id))) + 1;
+  // Fecha actual
+  const now = new Date();
+  const lastReviewed = now.toLocaleDateString('es-ES');
 
-  // Get current date in dd/mm/yyyy
-  const today = new Date();
-  const lastReviewed = today.toLocaleDateString('es-ES');
-
-  // Geocode with Nominatim
-  const geoRes = await axios.get('https://nominatim.openstreetmap.org/search', {
-    params: {
-      q: location,
-      format: 'json',
-      limit: 1
-    },
+  // Obtener lat/lon con Nominatim
+  const location = inputs.location;
+  const nominatimRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`, {
     headers: {
-      'User-Agent': 'CommunityDirectoryBot (communitybuilders.es@gmail.com)' 
+      'User-Agent': 'ComunidadBot/1.0 (contacto@tucorreo.com)'
     }
   });
+  const geo = await nominatimRes.json();
+  const latLon = geo.length > 0 ? {
+    lat: parseFloat(geo[0].lat),
+    lon: parseFloat(geo[0].lon)
+  } : { lat: null, lon: null };
 
-  const latLon = geoRes.data[0]
-    ? { lat: parseFloat(geoRes.data[0].lat), lon: parseFloat(geoRes.data[0].lon) }
-    : { lat: null, lon: null };
+  // Descargar y convertir imagen
+  const url = inputs.thumbnailUrl;
+  const webpFilename = toWebpFileName(inputs.name);
+  const webpPath = path.join(imagesFolder, webpFilename);
+  const imgRes = await fetch(url);
+  const imgBuffer = await imgRes.buffer();
+  await sharp(imgBuffer).webp().toFile(webpPath);
 
-  // Assemble new community object
+  // Crear entrada nueva
   const newCommunity = {
-    id: nextId.toString(),
-    name,
-    status,
+    id: newId.toString(),
+    name: inputs.name,
+    status: inputs.status,
     lastReviewed,
-    communityType,
-    eventFormat,
-    location,
-    topics,
-    contactInfo,
-    communityUrl,
-    thumbnailUrl,
+    communityType: inputs.communityType,
+    eventFormat: inputs.eventFormat,
+    location: inputs.location,
+    topics: inputs.topics || "",
+    contactInfo: inputs.contactInfo || "",
+    communityUrl: inputs.communityUrl,
+    thumbnailUrl: `images/${webpFilename}`,
     latLon
   };
 
+  // Añadir al array y guardar
   communities.push(newCommunity);
-  fs.writeFileSync(path, JSON.stringify(communities, null, 2));
-  console.log(`✅ Comunidad añadida con ID ${nextId}`);
-})();
+  fs.writeFileSync(communitiesPath, JSON.stringify(communities, null, 2));
+  console.log(`✔ Añadida comunidad "${inputs.name}" con ID ${newId}`);
+}
+
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
