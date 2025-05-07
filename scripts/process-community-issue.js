@@ -51,6 +51,9 @@ async function main() {
 
   // Descargar y convertir imagen a .webp
   const webpFilename = toWebpFileName(name);
+  if (!fs.existsSync(imagesFolder)) {
+    fs.mkdirSync(imagesFolder, { recursive: true });
+  }
   const webpPath = path.join(imagesFolder, webpFilename);
   try {
     const imgRes = await fetch(thumbnailUrlOriginal);
