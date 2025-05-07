@@ -35,8 +35,9 @@ jobs:
       - name: Crear Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          commit-message: "Añadir nueva comunidad: ${{ fromJson(steps.issue.outputs).name }}"
-          branch: "add-community-${{ fromJson(steps.issue.outputs).name }}"
-          title: "Propuesta: Añadir comunidad ${{ fromJson(steps.issue.outputs).name }}"
+          commit-message: "Añadir nueva comunidad desde issue #${{ github.event.issue.number }}"
+          branch: "add-community-${{ github.event.issue.number }}"
+          title: "Propuesta: Añadir comunidad desde issue #${{ github.event.issue.number }}"
           body: |
             Esta PR ha sido generada automáticamente a partir del issue #${{ github.event.issue.number }}.
+
