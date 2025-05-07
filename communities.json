@@ -9435,5 +9435,22 @@
       "lat": 39.4702393,
       "lon": -0.3768049
     }
+  },
+  {
+    "id": "564",
+    "name": "Community Builders nueva",
+    "status": "Activa",
+    "lastReviewed": "7/5/2025",
+    "communityType": "Tech Meetup",
+    "eventFormat": "Presencial",
+    "location": "Alcazar de San Juan",
+    "topics": "",
+    "contactInfo": "",
+    "communityUrl": "https://github.com/hhkaos/communities-db/",
+    "thumbnailUrl": "images/community-builders-nueva.webp",
+    "latLon": {
+      "lat": 39.3899806,
+      "lon": -3.2101376
+    }
   }
 ]
