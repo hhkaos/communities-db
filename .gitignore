@@ -1,0 +1,4 @@
+node_modules/
+issue-body.txt
+*.log
+.DS_Store
