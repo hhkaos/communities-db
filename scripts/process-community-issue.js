@@ -39,22 +39,25 @@ async function main() {
   const communityUrl = extractField('URL principal de la comunidad');
   const thumbnailUrlOriginal = extractField('Imagen o logotipo de la comunidad');
 
-  // Validar campos requeridos
-  if (!name || !status || !communityType || !eventFormat || !location || !communityUrl) {
-    console.error('❌ Faltan campos requeridos en el formulario. Revisa los datos del issue.');
-    process.exit(1);
-  }
-
-  // Validar duplicados por nombre o URL del logo
+  // Validar duplicados por nombre, thumbnail o URL
   const nameExists = communities.some(c => c.name.trim().toLowerCase() === name.trim().toLowerCase());
-  const thumbnailExists = communities.some(c => c.thumbnailUrl && thumbnailUrlOriginal && c.thumbnailUrl.includes(path.basename(thumbnailUrlOriginal)));
-
-  if (nameExists || thumbnailExists) {
+  const thumbnailExists = communities.some(c => 
+    c.thumbnailUrl && thumbnailUrlOriginal &&
+    (c.thumbnailUrl.includes(path.basename(thumbnailUrlOriginal)) || thumbnailUrlOriginal.includes(path.basename(c.thumbnailUrl)))
+  );
+  const urlExists = communities.some(c => 
+    c.communityUrl && communityUrl &&
+    c.communityUrl.trim().toLowerCase() === communityUrl.trim().toLowerCase()
+  );
+  
+  if (nameExists || thumbnailExists || urlExists) {
     console.error(`❌ Esta comunidad podría ser un duplicado:`);
     if (nameExists) console.error(`- Ya existe una comunidad con el nombre "${name}"`);
     if (thumbnailExists) console.error(`- Ya se ha usado esa imagen o una similar como thumbnail`);
+    if (urlExists) console.error(`- Ya existe una comunidad con la misma URL "${communityUrl}"`);
     process.exit(1);
   }
+
 
   // Fecha actual
   const now = new Date();
