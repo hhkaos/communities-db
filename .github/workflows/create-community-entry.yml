@@ -10,31 +10,37 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
       issues: read
+      pull-requests: write
 
     steps:
-      - name: Checkout
+      - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
 
-      - name: Install dependencies
-        run: npm install axios
+      - name: Instalar dependencias
+        run: npm install node-fetch sharp
 
-      - name: Run script to update communities.json
-        env:
-          ISSUE_BODY: "${{ github.event.issue.body }}"
-        run: node scripts/process-community-issue.js
+      - name: Extraer datos del issue
+        id: issue
+        uses: peter-evans/issue-parser@v4
+        with:
+          template: .github/ISSUE_TEMPLATE/community_entry.yml
+          issue-number: ${{ github.event.issue.number }}
 
-      - name: Create Pull Request
+      - name: Generar entrada de comunidad y actualizar JSON
+        run: |
+          node scripts/generate-community-entry.js '${{ toJson(steps.issue.outputs) }}'
+
+      - name: Crear Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          commit-message: "Add new community from issue"
-          branch: "add-community-${{ github.event.issue.number }}"
-          title: "Añadir comunidad propuesta en #${{ github.event.issue.number }}"
+          commit-message: "Añadir nueva comunidad: ${{ fromJson(steps.issue.outputs).name }}"
+          branch: "add-community-${{ fromJson(steps.issue.outputs).name }}"
+          title: "Propuesta: Añadir comunidad ${{ fromJson(steps.issue.outputs).name }}"
           body: |
-            Esta PR añade una nueva comunidad al archivo `communities.json` basada en el issue #${{ github.event.issue.number }}.
+            Esta PR ha sido generada automáticamente a partir del issue #${{ github.event.issue.number }}.
