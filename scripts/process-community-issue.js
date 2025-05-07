@@ -3,69 +3,87 @@ const path = require('path');
 const fetch = require('node-fetch');
 const sharp = require('sharp');
 
-const inputs = JSON.parse(process.argv[2]);
+const body = process.argv[2];
 const communitiesPath = './communities.json';
 const imagesFolder = './images';
 
-// Utilidades
-const toWebpFileName = (name) => name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '') + '.webp';
+function extractField(field, multiline = false) {
+  const regex = new RegExp(`### ${field}\\s+([\\s\\S]*?)(?:\\n###|$)`, 'i');
+  const match = body.match(regex);
+  return match ? match[1].trim().replace(/["']/g, '') : '';
+}
+
+function toWebpFileName(name) {
+  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '') + '.webp';
+}
 
 async function main() {
-  // Cargar comunidades existentes
+  // Leer comunidades existentes
   const data = fs.readFileSync(communitiesPath, 'utf-8');
   const communities = JSON.parse(data);
-
-  // Calcular ID
   const newId = communities.length + 1;
+
+  // Extraer campos desde el body del issue
+  const name = extractField('Nombre de la comunidad');
+  const status = extractField('Estado de la comunidad');
+  const communityType = extractField('Tipo de comunidad');
+  const eventFormat = extractField('Formato del evento');
+  const location = extractField('Ciudad o región principal');
+  const topics = extractField('Temas que trata', true);
+  const contactInfo = extractField('Información de contacto', true);
+  const communityUrl = extractField('URL principal de la comunidad');
+  const thumbnailUrlOriginal = extractField('Imagen o logotipo de la comunidad');
 
   // Fecha actual
   const now = new Date();
   const lastReviewed = now.toLocaleDateString('es-ES');
 
-  // Obtener lat/lon con Nominatim
-  const location = inputs.location;
-  const nominatimRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`, {
+  // Coordenadas desde Nominatim
+  const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`, {
     headers: {
       'User-Agent': 'ComunidadBot/1.0 (contacto@tucorreo.com)'
     }
   });
-  const geo = await nominatimRes.json();
-  const latLon = geo.length > 0 ? {
-    lat: parseFloat(geo[0].lat),
-    lon: parseFloat(geo[0].lon)
+  const geoData = await geoRes.json();
+  const latLon = geoData.length ? {
+    lat: parseFloat(geoData[0].lat),
+    lon: parseFloat(geoData[0].lon)
   } : { lat: null, lon: null };
 
-  // Descargar y convertir imagen
-  const url = inputs.thumbnailUrl;
-  const webpFilename = toWebpFileName(inputs.name);
+  // Descargar y convertir imagen a .webp
+  const webpFilename = toWebpFileName(name);
   const webpPath = path.join(imagesFolder, webpFilename);
-  const imgRes = await fetch(url);
-  const imgBuffer = await imgRes.buffer();
-  await sharp(imgBuffer).webp().toFile(webpPath);
+  try {
+    const imgRes = await fetch(thumbnailUrlOriginal);
+    const imgBuffer = await imgRes.buffer();
+    await sharp(imgBuffer).webp().toFile(webpPath);
+  } catch (e) {
+    console.error('❌ Error al procesar la imagen:', e.message);
+  }
 
-  // Crear entrada nueva
+  // Montar objeto final
   const newCommunity = {
     id: newId.toString(),
-    name: inputs.name,
-    status: inputs.status,
+    name,
+    status,
     lastReviewed,
-    communityType: inputs.communityType,
-    eventFormat: inputs.eventFormat,
-    location: inputs.location,
-    topics: inputs.topics || "",
-    contactInfo: inputs.contactInfo || "",
-    communityUrl: inputs.communityUrl,
+    communityType,
+    eventFormat,
+    location,
+    topics,
+    contactInfo,
+    communityUrl,
     thumbnailUrl: `images/${webpFilename}`,
     latLon
   };
 
-  // Añadir al array y guardar
+  // Añadir al JSON y guardar
   communities.push(newCommunity);
   fs.writeFileSync(communitiesPath, JSON.stringify(communities, null, 2));
-  console.log(`✔ Añadida comunidad "${inputs.name}" con ID ${newId}`);
+  console.log(`✔ Comunidad añadida: ${name} (ID ${newId})`);
 }
 
 main().catch(err => {
-  console.error(err);
+  console.error('❌ Error:', err);
   process.exit(1);
 });
