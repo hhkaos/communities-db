@@ -1,0 +1,122 @@
+name: Nueva comunidad tech
+description: Proponer una comunidad para añadir al directorio
+title: "[Comunidad] Nombre de la comunidad"
+labels: [nueva-comunidad]
+assignees: []
+
+body:
+  - type: input
+    id: id
+    attributes:
+      label: ID interno
+      description: ID numérico único para la comunidad
+      placeholder: "Ejemplo: 562"
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: Nombre de la comunidad
+      placeholder: "Ejemplo: Valencia Codes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Estado de la comunidad
+      options:
+        - Activa
+        - Inactiva
+    validations:
+      required: true
+
+  - type: input
+    id: lastReviewed
+    attributes:
+      label: Última revisión
+      description: Fecha de la última vez que se revisó esta entrada
+      placeholder: "Ejemplo: 25/04/2025"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: communityType
+    attributes:
+      label: Tipo de comunidad
+      options:
+        - Tech Meetup
+        - Comunidad Online
+        - Conferencia
+        - Grupo Estudiantil
+        - Otro
+    validations:
+      required: true
+
+  - type: dropdown
+    id: eventFormat
+    attributes:
+      label: Formato del evento
+      options:
+        - Presencial
+        - Online
+        - Híbrido
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Ciudad o región principal
+      placeholder: "Ejemplo: Valencia"
+    validations:
+      required: true
+
+  - type: textarea
+    id: topics
+    attributes:
+      label: Temas que trata
+      placeholder: "Ejemplo: JavaScript, Desarrollo Web, DevOps..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: contactInfo
+    attributes:
+      label: Información de contacto
+      description: Correo, redes sociales, Slack, Discord, etc.
+    validations:
+      required: false
+
+  - type: input
+    id: communityUrl
+    attributes:
+      label: URL principal de la comunidad
+      placeholder: "https://..."
+    validations:
+      required: true
+
+  - type: input
+    id: thumbnailUrl
+    attributes:
+      label: Imagen o logotipo de la comunidad
+      description: URL relativa (ej. `images/valencia-codes.webp`) o absoluta
+    validations:
+      required: false
+
+  - type: input
+    id: lat
+    attributes:
+      label: Latitud
+      placeholder: "Ejemplo: 39.4702393"
+    validations:
+      required: true
+
+  - type: input
+    id: lon
+    attributes:
+      label: Longitud
+      placeholder: "Ejemplo: -0.3768049"
+    validations:
+      required: true
