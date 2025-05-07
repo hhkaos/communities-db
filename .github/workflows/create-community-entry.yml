@@ -30,7 +30,7 @@ jobs:
           echo "${{ github.event.issue.body }}" > issue-body.txt
       
       - name: Generar entrada de comunidad y actualizar JSON
-        run: node scripts/generate-community-entry.js "$(cat issue-body.txt)"
+        run: node scripts/process-community-issue.js "$(cat issue-body.txt)"
 
       - name: Crear Pull Request
         uses: peter-evans/create-pull-request@v5
