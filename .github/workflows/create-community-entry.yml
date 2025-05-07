@@ -25,12 +25,9 @@ jobs:
       - name: Instalar dependencias
         run: npm install node-fetch sharp
 
-      - name: Extraer datos del issue
-        id: issue
-        uses: peter-evans/issue-parser@v4
-        with:
-          template: .github/ISSUE_TEMPLATE/community_entry.yml
-          issue-number: ${{ github.event.issue.number }}
+      - name: Generar entrada de comunidad y actualizar JSON
+        run: |
+          node scripts/generate-community-entry.js "${{ github.event.issue.body }}"
 
       - name: Generar entrada de comunidad y actualizar JSON
         run: |
