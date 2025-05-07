@@ -6,15 +6,6 @@ assignees: []
 
 body:
   - type: input
-    id: id
-    attributes:
-      label: ID interno
-      description: ID numérico único para la comunidad
-      placeholder: "Ejemplo: 562"
-    validations:
-      required: true
-
-  - type: input
     id: name
     attributes:
       label: Nombre de la comunidad
@@ -29,15 +20,7 @@ body:
       options:
         - Activa
         - Inactiva
-    validations:
-      required: true
-
-  - type: input
-    id: lastReviewed
-    attributes:
-      label: Última revisión
-      description: Fecha de la última vez que se revisó esta entrada
-      placeholder: "Ejemplo: 25/04/2025"
+        - Desconocido
     validations:
       required: true
 
@@ -47,10 +30,12 @@ body:
       label: Tipo de comunidad
       options:
         - Tech Meetup
-        - Comunidad Online
         - Conferencia
-        - Grupo Estudiantil
-        - Otro
+        - Organización paraguas
+        - Hacklab
+        - Grupo colaborativo
+        - Meta comunidad
+        - Grupo de ayuda mutua
     validations:
       required: true
 
@@ -62,6 +47,7 @@ body:
         - Presencial
         - Online
         - Híbrido
+        - Desconocido
     validations:
       required: true
 
@@ -104,19 +90,3 @@ body:
       description: URL relativa (ej. `images/valencia-codes.webp`) o absoluta
     validations:
       required: false
-
-  - type: input
-    id: lat
-    attributes:
-      label: Latitud
-      placeholder: "Ejemplo: 39.4702393"
-    validations:
-      required: true
-
-  - type: input
-    id: lon
-    attributes:
-      label: Longitud
-      placeholder: "Ejemplo: -0.3768049"
-    validations:
-      required: true
