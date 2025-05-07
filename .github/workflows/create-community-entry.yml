@@ -25,21 +25,21 @@ jobs:
       - name: Instalar dependencias
         run: npm install node-fetch sharp
 
-      - name: Generar entrada de comunidad y actualizar JSON
-        run: node scripts/process-community-issue.js "${{ github.event.issue.body }}"
-      
-      - name: Limpiar archivos temporales
+      - name: Obtener datos del issue
         run: |
-          rm -f issue-body.txt
-          git reset node_modules/ || true
-          echo "🧹 Archivos temporales limpiados"
+          echo "${{ github.event.issue.body }}" > issue-body.txt
+      
+      - name: Generar entrada de comunidad y actualizar JSON
+        run: node scripts/process-community-issue.js "$(cat issue-body.txt)"
 
       - name: Crear Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
+          add-paths: |
+            communities.json
+            images/
           commit-message: "Añadir nueva comunidad desde issue #${{ github.event.issue.number }}"
           branch: "add-community-${{ github.event.issue.number }}"
           title: "Propuesta: Añadir comunidad desde issue #${{ github.event.issue.number }}"
           body: |
             Esta PR ha sido generada automáticamente a partir del issue #${{ github.event.issue.number }}.
-
