@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
 const sharp = require('sharp');
 
 const body = process.argv[2];
@@ -38,7 +37,7 @@ async function main() {
   const now = new Date();
   const lastReviewed = now.toLocaleDateString('es-ES');
 
-  // Coordenadas desde Nominatim
+  // Coordenadas desde Nominatim (con fetch nativo)
   const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`, {
     headers: {
       'User-Agent': 'ComunidadBot/1.0 (communitybuilders.es@gmail.com)'
@@ -55,8 +54,8 @@ async function main() {
   const webpPath = path.join(imagesFolder, webpFilename);
   try {
     const imgRes = await fetch(thumbnailUrlOriginal);
-    const imgBuffer = await imgRes.buffer();
-    await sharp(imgBuffer).webp().toFile(webpPath);
+    const imgBuffer = await imgRes.arrayBuffer();
+    await sharp(Buffer.from(imgBuffer)).webp().toFile(webpPath);
   } catch (e) {
     console.error('❌ Error al procesar la imagen:', e.message);
   }
