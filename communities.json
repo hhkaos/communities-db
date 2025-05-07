@@ -9435,5 +9435,22 @@
       "lat": 39.4702393,
       "lon": -0.3768049
     }
+  },
+  {
+    "id": "564",
+    "name": "Geo Developers",
+    "status": "Activa",
+    "lastReviewed": "7/5/2025",
+    "communityType": "Tech Meetup",
+    "eventFormat": "Online",
+    "location": "Albacete",
+    "topics": "_No response_",
+    "contactInfo": "_No response_",
+    "communityUrl": "https://linktr.ee/geodevelopers",
+    "thumbnailUrl": "images/geo-developers.webp",
+    "latLon": {
+      "lat": 38.9950921,
+      "lon": -1.8559154
+    }
   }
 ]
